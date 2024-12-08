@@ -5,12 +5,11 @@ public class BinaryTree {
 	Node root;
 	
 	public void insert(int value) {
-		
 		if(this.root == null) 
 		{
 			Node newRoot = new Node(value);
 			this.root = newRoot;
-		}else {
+		} else {
 			Node newChild = new Node(value);
 			Node travel = this.root;
 			Node parent = travel;
@@ -19,90 +18,91 @@ public class BinaryTree {
 				if(travel.value > value)
 				{
 					travel = travel.left;
-				}else {
+				} else {
 					travel = travel.right;
 				}
 			}
 		    if(parent.value > value) 
 		    {
 		    	parent.left = newChild;
-			}else {
+			} else {
 				parent.right = newChild;
 			}
-			
 		}
 	}
 	
 	public void delete(int value) {
 		Node toBeDeleted = this.search(value, root);
-		Node parent = toBeDeleted;
-		while(toBeDeleted != null && toBeDeleted.value != value) 
-		{
-			parent = toBeDeleted;
-			
-			if(toBeDeleted.value > value) 
-			{
-				toBeDeleted = toBeDeleted.left;
-			}else {
-				toBeDeleted = toBeDeleted.right;				
-			}
-			
-		}
+
 		if(toBeDeleted == null) {
 			System.out.println("Value does not exist");
 			return;
 		}
-		
-		if(toBeDeleted == this.root)
+		if(toBeDeleted == this.root) {
+			// if root has no children
+	        if (toBeDeleted.left == null && toBeDeleted.right == null) {
+	        	this.root = null;
+				return;
+	        }
+	        // if root has only right child
+	        if (toBeDeleted.left == null) {
+	            this.root = toBeDeleted.right;  
+	            return;
+	        }
+	        if (toBeDeleted.right == null) {
+	            this.root = toBeDeleted.left; 
+	            return;
+	        }	
+	        //if root has two child
+	        Node successor = findSucces(value); 
+	        this.delete(successor.value);
+	        toBeDeleted.value = successor.value;
+	        return;
+		}
+		// if the node to be deleted is not root
+		toBeDeleted = this.root;
+		Node parent = null;
+		while(toBeDeleted != null && toBeDeleted.value != value) 
 		{
-			this.root = null;
-			return;
+			parent = toBeDeleted;
+			if(toBeDeleted.value > value) 
+			{
+				toBeDeleted = toBeDeleted.left;
+			} else {
+				toBeDeleted = toBeDeleted.right;				
+			}
 		}
 		//case 1: No children
 		if(toBeDeleted.left==null && toBeDeleted.right==null) {
 			if(parent.value > value) {
 				parent.left = null;
-			}else {
+			} else {
 				parent.right = null;
 			}
 			return;
 		}
+		//case 2: only right child exist
 		if(toBeDeleted.left == null) {
-			// replace the node with its successor
-			Node parentOfSucces = toBeDeleted;			
-			toBeDeleted = toBeDeleted.right;
-			while(toBeDeleted.left != null) {
-				parentOfSucces = toBeDeleted;
-				toBeDeleted = toBeDeleted.left; //making toBeDeleted the successor
+			if(parent.value > value) {
+				parent.left = toBeDeleted.right;
+			} else {
+				parent.right = toBeDeleted.right;
 			}
-			if(parent.value > value)
-			{
-				parent.left = toBeDeleted;
-			}else {
-				parent.right = toBeDeleted;
-			}
-			
-			parentOfSucces.left = toBeDeleted.right; //making the right tree of successor node the left child of succesor parent
-			return;
-		}else {
-			//replace with its predecessor
-			Node parentOfPredeces = toBeDeleted;
-			toBeDeleted = toBeDeleted.left;
-			while(toBeDeleted.right != null) {
-				parentOfPredeces = toBeDeleted;
-				toBeDeleted = toBeDeleted.right;
-			}
-			if(parent.value >  value) 
-			{
-				parent.left = toBeDeleted;
-			}else {
-				parent.right = toBeDeleted;
-			}
-			
-			parentOfPredeces.right = toBeDeleted.left;
 			return;
 		}
-		
+		//case 3: only left child exist
+	    if (toBeDeleted.right == null) {
+	        if (parent.left == toBeDeleted) {
+	            parent.left = toBeDeleted.left;
+	        } else {
+	            parent.right = toBeDeleted.left;
+	        }
+	        return;
+	    }
+	    //case 4: Two children exist
+	    Node successor = this.findSucces(value);
+	    toBeDeleted.value = successor.value;
+	    this.delete(successor.value);
 	}
 	
 	public Node search(int value, Node travel) {
@@ -112,18 +112,19 @@ public class BinaryTree {
 		if(travel.value > value) 
 		{
 			return search(value, travel.left);
-		}else {
+		} else {
 			return search(value, travel.right);
 		}
 	}
 	
-	public Node findSucces(int value)
-	{
+	public Node findSucces(int value) {
 		Node x = this.search(value, root);
-		if(x.right != null) 
-		{
+		if(x==null) {
+			return x;
+		}
+		if(x.right != null) {
 			x = x.right;
-		}else {
+		} else {
 			return x.right;
 		}
 		while(x.left != null) {
@@ -132,13 +133,15 @@ public class BinaryTree {
 		return x;
 	}
 	
-	public Node findPredeces(int value) 
-	{
+	public Node findPredeces(int value) {
 		Node x = this.search(value, root);
+		if(x==null) {
+			return x;
+		}
 		if(x.left != null) 
 		{
 			x = x.left;
-		}else {
+		} else {
 			x= x.right;
 		}
 		while(x.right != null) {
